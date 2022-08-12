@@ -1,0 +1,28 @@
+{
+  "name": "forkify",
+  "version": "1.0.0",
+  "description": "Recipe application",
+  "default": "index.html",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "targets": {
+    "main": false
+  },
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dkovalenko95/forkify-app.git"
+  },
+  "author": "Dmytro Kovalenko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dkovalenko95/forkify-app/issues"
+  },
+  "homepage": "https://github.com/dkovalenko95/forkify-app#readme",
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.7.0",
+    "parcel": "^2.7.0"
+  }
+}
