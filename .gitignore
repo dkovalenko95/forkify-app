@@ -1,7 +1,9 @@
 # Dependency directories
 node_modules/
 jspm_packages/
+
 architecture_schemes/
+.parcel-cache
 
 # Notes files
 notes.*
@@ -18,5 +20,4 @@ notes.*
 # Ignore SASS config files
 .sass-cache
 
-# Ignore parcel-cache files
 .parcel-cache
