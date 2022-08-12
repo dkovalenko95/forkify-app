@@ -17,3 +17,6 @@ notes.*
 
 # Ignore SASS config files
 .sass-cache
+
+# Ignore parcel-cache files
+.parcel-cache
