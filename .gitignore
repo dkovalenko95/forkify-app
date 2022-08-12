@@ -3,7 +3,7 @@ node_modules/
 jspm_packages/
 
 architecture_schemes/
-.parcel-cache
+.parcel-cache/
 
 # Notes files
 notes.*
