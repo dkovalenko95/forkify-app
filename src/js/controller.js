@@ -1,7 +1,6 @@
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
 
-
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
@@ -19,13 +18,12 @@ const timeout = function (s) {
 
 ///////////////////////////////////////
 
+// App logic(ROUTER): Handles UI events and dispatches tasks to 'model' and 'view'
 const controlRecipes = async function () {
   try {
-
     // Get recipe id
     const idRecipe = window.location.hash.slice(1);
     console.log(idRecipe);
-
     if (!idRecipe) return;
     recipeView.renderSpinner();
 
@@ -39,8 +37,6 @@ const controlRecipes = async function () {
     alert(err);
   }
 };
-// controlRecipes();
-
 
 // Handling few event listeners with the same callback
 ['hashchange', 'load'].forEach( ev => window.addEventListener(ev, controlRecipes) );
