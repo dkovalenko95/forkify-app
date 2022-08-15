@@ -540,32 +540,25 @@ var _recipeViewJs = require("./views/recipeView.js");
 var _recipeViewJsDefault = parcelHelpers.interopDefault(_recipeViewJs);
 var _runtime = require("regenerator-runtime/runtime");
 const recipeContainer = document.querySelector(".recipe");
-const timeout = function(s) {
-    return new Promise(function(_, reject) {
-        setTimeout(function() {
-            reject(new Error(`Request took too long! Timeout after ${s} second`));
-        }, s * 1000);
-    });
-};
 // https://forkify-api.herokuapp.com/v2
 ///////////////////////////////////////
 // App logic(ROUTER): Handles UI events and dispatches tasks to 'model' and 'view'
 const controlRecipes = async function() {
     try {
-        // Get recipe id
+        // Get recipe id:
         const idRecipe = window.location.hash.slice(1);
         console.log(idRecipe);
         if (!idRecipe) return;
         (0, _recipeViewJsDefault.default).renderSpinner();
-        // 1) Loading recipe(async func from model.js -> return promise) -> one async func calling another async func
+        // 1) Loading recipe(async func from model.js -> return promise) -> one async func calling another async func:
         await _modelJs.loadRecipe(idRecipe);
-        // 2) Rendering recipe
+        // 2) Rendering recipe:
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
     } catch (err) {
-        alert(err);
+        console.error(`${err} 💥💥💥`);
     }
 };
-// Handling few event listeners with the same callback
+// Handling few event listeners with the same callback:
 [
     "hashchange",
     "load"
@@ -2298,28 +2291,44 @@ const loadRecipe = async function(id) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "API_URL", ()=>API_URL);
+parcelHelpers.export(exports, "TIMEOUT_SEC", ()=>TIMEOUT_SEC);
 const API_URL = "https://forkify-api.herokuapp.com/api/v2/recipes";
+const TIMEOUT_SEC = 10;
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"hGI1E":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "getJSON", ()=>getJSON);
+var _regeneratorRuntime = require("regenerator-runtime");
+var _configJs = require("./config.js");
+// Timeout:
+const timeout = function(s) {
+    return new Promise(function(_, reject) {
+        setTimeout(function() {
+            reject(new Error(`Request took too long! Timeout after ${s} second`));
+        }, s * 1000);
+    });
+};
 const getJSON = async function(url) {
     try {
-        const res = await fetch(url);
+        // Race to handle the delay:
+        const res = await Promise.race([
+            fetch(url),
+            timeout((0, _configJs.TIMEOUT_SEC))
+        ]);
         const data = await res.json();
         if (!res.ok) throw new Error(`${data.message} (${res.status})`);
         return data; // -> 'data' resolve value of the promise from getJSON()
     } catch (err) {
         // Temp err handling -> 
         // Re-throw err, so it apppear in model.js ->
-        // So we propagated err down from one async func to the other by re-throwing err here in this 'catch' block:
+        // So we propagated err down(to loadRecipe() in model.js) from one async func to the other by re-throwing err here in this 'catch' block:
         throw err;
     // console.log(err);
     }
 };
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"l60JC":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","regenerator-runtime":"dXNgZ","./config.js":"k5Hzs"}],"l60JC":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _iconsSvg = require("url:../../img/icons.svg");
