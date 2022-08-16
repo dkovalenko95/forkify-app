@@ -1,10 +1,10 @@
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
+import searchView from './views/searchView.js';
 
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
-
-const recipeContainer = document.querySelector('.recipe');
+import { async } from 'regenerator-runtime';
 
 // https://forkify-api.herokuapp.com/v2
 
@@ -15,7 +15,7 @@ const controlRecipes = async function () {
   try {
     // Get recipe id:
     const idRecipe = window.location.hash.slice(1);
-    console.log(idRecipe);
+    // console.log(idRecipe);
     if (!idRecipe) return;
     recipeView.renderSpinner();
 
@@ -31,8 +31,29 @@ const controlRecipes = async function () {
   }
 };
 
+// Publisher-Subsriber pattern: addHandlerSearch() - publisher, controlSearchResults() - subscriber
+const controlSearchResults = async function () {
+  try {
+    // 1) Get search query:
+    const query = searchView.getQuery();
+    if(!query) return;
+
+    // 2) Load search results:
+    // loadSearchResults() does not return anything, it's manipulate 'state'
+    await model.loadSearchResults(query);
+
+    // 3) Render results:
+    console.log(model.state.search.results);
+
+  } catch (err) {
+    console.log(err);
+  }
+};
+controlSearchResults();
+
 // Init func:
 const init = function () {
+  
 
   // Publisher-Subsriber pattern(handle events in controller - listen events in view) - pattern algorithm: 
   // -> subscribe to the publisher by passing in the subscriber func as arg -> 
@@ -40,10 +61,13 @@ const init = function () {
   // -> controlRecipes() - subsriber - code that wants to react(code that should be executed when event happens)
   
   recipeView.addHandlerRender(controlRecipes); // -> subsrice controlRecipes() to addHandlerRender() -> two funcs connected -> controlRecipes() will be passed into addHandlerRender() when program starts by init() -> addHandlerRender() listens for events (addEventListener()), and use controlRecipes() as callback -> in other words, as soon as the publisher publishes an event the subscriber will get called
+
+  searchView.addHandlerSearch(controlSearchResults);
+
 };
 init();
 
 // IIFE init func:
-(function init () {
-  recipeView.addHandlerRender(controlRecipes);
-})();
+// (function init () {
+//   recipeView.addHandlerRender(controlRecipes);
+// })();
