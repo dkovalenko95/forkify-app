@@ -30,7 +30,19 @@ const controlRecipes = async function () {
   }
 };
 
-// Handling few event listeners with the same callback:
-['hashchange', 'load'].forEach( ev => window.addEventListener(ev, controlRecipes) );
-// window.addEventListener('hashchange', controlRecipes);
-// window.addEventListener('load', controlRecipes);
+// Init func:
+const init = function () {
+
+  // Publisher-Subsriber pattern(handle events in controller - listen events in view) - pattern algorithm: 
+  // -> subscribe to the publisher by passing in the subscriber func as arg -> 
+  // -> addHandlerRender() - publisher - code that knows when to react
+  // -> controlRecipes() - subsriber - code that wants to react(code that should be executed when event happens)
+  
+  recipeView.addHandlerRender(controlRecipes); // -> subsrice controlRecipes() to addHandlerRender() -> two funcs connected -> controlRecipes() will be passed into addHandlerRender() when program starts by init() -> addHandlerRender() listens for events (addEventListener()), and use controlRecipes() as callback -> in other words, as soon as the publisher publishes an event the subscriber will get called
+};
+init();
+
+// IIFE init func:
+(function init () {
+  recipeView.addHandlerRender(controlRecipes);
+})();

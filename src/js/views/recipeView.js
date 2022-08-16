@@ -1,7 +1,7 @@
 import icons from 'url:../../img/icons.svg';
 import fracty from 'fracty';
 
-// Presentation logic(UI LAYER):
+// Presentation logic(UI LAYER, related to DOM):
 class RecipeView {
   #parentElement = document.querySelector('.recipe');
   #data;
@@ -29,6 +29,12 @@ class RecipeView {
   
     this.#parentElement.innerHTML = '';
     this.#parentElement.insertAdjacentHTML('afterbegin', markupSpinner);
+  }
+
+  // Publisher-Subsriber pattern:
+  addHandlerRender(handler) {
+    // Handling few event listeners with the same callback:
+    ['hashchange', 'load'].forEach( ev => window.addEventListener(ev, handler));
   }
 
   #generateMarkup() {

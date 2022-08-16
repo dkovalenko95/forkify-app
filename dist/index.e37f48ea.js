@@ -533,8 +533,7 @@ function hmrAcceptRun(bundle, id) {
 
 },{}],"aenu9":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-var _webImmediateJs = require("core-js/modules/web.immediate.js"); // window.addEventListener('hashchange', controlRecipes);
- // window.addEventListener('load', controlRecipes);
+var _webImmediateJs = require("core-js/modules/web.immediate.js");
 var _modelJs = require("./model.js");
 var _recipeViewJs = require("./views/recipeView.js");
 var _recipeViewJsDefault = parcelHelpers.interopDefault(_recipeViewJs);
@@ -558,11 +557,19 @@ const controlRecipes = async function() {
         console.error(`${err} 💥💥💥`);
     }
 };
-// Handling few event listeners with the same callback:
-[
-    "hashchange",
-    "load"
-].forEach((ev)=>window.addEventListener(ev, controlRecipes));
+// Init func:
+const init = function() {
+    // Publisher-Subsriber pattern(handle events in controller - listen events in view) - pattern algorithm: 
+    // -> subscribe to the publisher by passing in the subscriber func as arg -> 
+    // -> addHandlerRender() - publisher - code that knows when to react
+    // -> controlRecipes() - subsriber - code that wants to react(code that should be executed when event happens)
+    (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes); // -> subsrice controlRecipes() to addHandlerRender() -> two funcs connected -> controlRecipes() will be passed into addHandlerRender() when program starts by init() -> addHandlerRender() listens for events (addEventListener()), and use controlRecipes() as callback -> in other words, as soon as the publisher publishes an event the subscriber will get called
+};
+init();
+// IIFE init func:
+(function init() {
+    (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes);
+})();
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./model.js":"Y4A21","./views/recipeView.js":"l60JC"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
@@ -2335,7 +2342,7 @@ var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 var _fracty = require("fracty");
 var _fractyDefault = parcelHelpers.interopDefault(_fracty);
-// Presentation logic(UI LAYER):
+// Presentation logic(UI LAYER, related to DOM):
 class RecipeView {
     #parentElement = document.querySelector(".recipe");
     #data;
@@ -2359,6 +2366,14 @@ class RecipeView {
         this.#parentElement.innerHTML = "";
         this.#parentElement.insertAdjacentHTML("afterbegin", markupSpinner);
     };
+    // Publisher-Subsriber pattern:
+    addHandlerRender(handler) {
+        // Handling few event listeners with the same callback:
+        [
+            "hashchange",
+            "load"
+        ].forEach((ev)=>window.addEventListener(ev, handler));
+    }
      #generateMarkup() {
         return `
       <figure class="recipe__fig">
