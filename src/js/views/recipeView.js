@@ -5,6 +5,8 @@ import fracty from 'fracty';
 class RecipeView {
   #parentElement = document.querySelector('.recipe');
   #data;
+  #errorMessage = 'We could not find that recipe. Please try another one!';
+  #message = '';
 
   render(data) {
     this.#data = data;
@@ -18,7 +20,7 @@ class RecipeView {
     this.#parentElement.innerHTML = '';
   }
 
-  renderSpinner = function () {
+  renderSpinner() {
     const markupSpinner = ` 
       <div class="spinner">
         <svg>
@@ -27,8 +29,40 @@ class RecipeView {
       </div> 
     `;
   
-    this.#parentElement.innerHTML = '';
+    this.#clear();
     this.#parentElement.insertAdjacentHTML('afterbegin', markupSpinner);
+  }
+
+  renderError(message = this.#errorMessage) {
+    const markupError = `
+      <div class="error">
+        <div>
+          <svg>
+            <use href="${icons}#icon-alert-triangle"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+    </div>
+    `;
+
+    this.#clear();
+    this.#parentElement.insertAdjacentHTML('afterbegin', markupError);
+  }
+
+  renderMessage(message = this.#message) {
+    const markupError = `
+      <div class="message">
+        <div>
+          <svg>
+            <use href="${icons}#icon-smile"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+    </div>
+    `;
+
+    this.#clear();
+    this.#parentElement.insertAdjacentHTML('afterbegin', markupError);
   }
 
   // Publisher-Subsriber pattern:

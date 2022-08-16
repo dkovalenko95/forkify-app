@@ -554,7 +554,8 @@ const controlRecipes = async function() {
         // 2) Rendering recipe:
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
     } catch (err) {
-        console.error(`${err} 💥💥💥`);
+        // Handling error:
+        (0, _recipeViewJsDefault.default).renderError();
     }
 };
 // Init func:
@@ -2290,7 +2291,10 @@ const loadRecipe = async function(id) {
         };
         console.log(state.recipe);
     } catch (err) {
+        // Temp err handling:
         console.error(`${err} ⛔⛔⛔`);
+        // Re-throw err:
+        throw err;
     }
 };
 
@@ -2346,6 +2350,8 @@ var _fractyDefault = parcelHelpers.interopDefault(_fracty);
 class RecipeView {
     #parentElement = document.querySelector(".recipe");
     #data;
+    #errorMessage = "We could not find that recipe. Please try another one!";
+    #message = "";
     render(data) {
         this.#data = data;
         const markup = this.#generateMarkup();
@@ -2355,7 +2361,7 @@ class RecipeView {
      #clear() {
         this.#parentElement.innerHTML = "";
     }
-    renderSpinner = function() {
+    renderSpinner() {
         const markupSpinner = ` 
       <div class="spinner">
         <svg>
@@ -2363,9 +2369,37 @@ class RecipeView {
         </svg>
       </div> 
     `;
-        this.#parentElement.innerHTML = "";
+        this.#clear();
         this.#parentElement.insertAdjacentHTML("afterbegin", markupSpinner);
-    };
+    }
+    renderError(message = this.#errorMessage) {
+        const markupError = `
+      <div class="error">
+        <div>
+          <svg>
+            <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+    </div>
+    `;
+        this.#clear();
+        this.#parentElement.insertAdjacentHTML("afterbegin", markupError);
+    }
+    renderMessage(message = this.#message) {
+        const markupError = `
+      <div class="message">
+        <div>
+          <svg>
+            <use href="${(0, _iconsSvgDefault.default)}#icon-smile"></use>
+          </svg>
+        </div>
+        <p>${message}</p>
+    </div>
+    `;
+        this.#clear();
+        this.#parentElement.insertAdjacentHTML("afterbegin", markupError);
+    }
     // Publisher-Subsriber pattern:
     addHandlerRender(handler) {
         // Handling few event listeners with the same callback:
