@@ -1,10 +1,16 @@
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
+import resultsView from './views/resultsView.js';
 
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import { async } from 'regenerator-runtime';
+
+// For 'state' remaining:
+if (module.hot) {
+  module.hot.accept();
+};
 
 // https://forkify-api.herokuapp.com/v2
 
@@ -13,16 +19,17 @@ import { async } from 'regenerator-runtime';
 // App logic(ROUTER): Handles UI events and dispatches tasks to 'model' and 'view'
 const controlRecipes = async function () {
   try {
-    // Get recipe id:
+
+    // 1) Get recipe id:
     const idRecipe = window.location.hash.slice(1);
     // console.log(idRecipe);
     if (!idRecipe) return;
     recipeView.renderSpinner();
 
-    // 1) Loading recipe(async func from model.js -> return promise) -> one async func calling another async func:
+    // 2) Loading recipe(async func from model.js -> return promise) -> one async func calling another async func:
     await model.loadRecipe(idRecipe);
     
-    // 2) Rendering recipe:
+    // 3) Rendering recipe:
     recipeView.render(model.state.recipe);
 
   } catch (err) {
@@ -34,6 +41,9 @@ const controlRecipes = async function () {
 // Publisher-Subsriber pattern: addHandlerSearch() - publisher, controlSearchResults() - subscriber
 const controlSearchResults = async function () {
   try {
+    resultsView.renderSpinner();
+    console.log(resultsView);
+
     // 1) Get search query:
     const query = searchView.getQuery();
     if(!query) return;
@@ -43,18 +53,17 @@ const controlSearchResults = async function () {
     await model.loadSearchResults(query);
 
     // 3) Render results:
-    console.log(model.state.search.results);
+    // console.log(model.state.search.results);
+    resultsView.render(model.state.search.results);
 
   } catch (err) {
     console.log(err);
   }
 };
-controlSearchResults();
 
 // Init func:
 const init = function () {
   
-
   // Publisher-Subsriber pattern(handle events in controller - listen events in view) - pattern algorithm: 
   // -> subscribe to the publisher by passing in the subscriber func as arg -> 
   // -> addHandlerRender() - publisher - code that knows when to react
