@@ -544,6 +544,8 @@ var _searchViewJs = require("./views/searchView.js");
 var _searchViewJsDefault = parcelHelpers.interopDefault(_searchViewJs);
 var _resultsViewJs = require("./views/resultsView.js");
 var _resultsViewJsDefault = parcelHelpers.interopDefault(_resultsViewJs);
+var _paginationViewJs = require("./views/paginationView.js");
+var _paginationViewJsDefault = parcelHelpers.interopDefault(_paginationViewJs);
 var _runtime = require("regenerator-runtime/runtime");
 var _regeneratorRuntime = require("regenerator-runtime");
 // https://forkify-api.herokuapp.com/v2
@@ -578,10 +580,21 @@ const controlSearchResults = async function() {
         await _modelJs.loadSearchResults(query);
         // 3) Render results:
         // console.log(model.state.search.results);
-        (0, _resultsViewJsDefault.default).render(_modelJs.getSearchResultsPage(1));
+        (0, _resultsViewJsDefault.default).render(_modelJs.getSearchResultsPage(_modelJs.state.search.page));
+        // 4) Render initial pagination btns
+        (0, _paginationViewJsDefault.default).render(_modelJs.state.search);
     } catch (err) {
         console.log(err);
     }
+};
+// Publisher-Subsriber pattern: addHandlerCLick() - publisher, controlPagination() - subscriber
+const controlPagination = function(goToPage) {
+    console.log(goToPage);
+    // 1) Render NEW results:
+    // console.log(model.state.search.results);
+    (0, _resultsViewJsDefault.default).render(_modelJs.getSearchResultsPage(goToPage));
+    // 2) Render NEW pagination btns
+    (0, _paginationViewJsDefault.default).render(_modelJs.state.search);
 };
 // Init func:
 const init = function() {
@@ -591,10 +604,11 @@ const init = function() {
     // -> controlRecipes() - subsriber - code that wants to react(code that should be executed when event happens)
     (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes); // -> subsrice controlRecipes() to addHandlerRender() -> two funcs connected -> controlRecipes() will be passed into addHandlerRender() when program starts by init() -> addHandlerRender() listens for events (addEventListener()), and use controlRecipes() as callback -> in other words, as soon as the publisher publishes an event the subscriber will get called
     (0, _searchViewJsDefault.default).addHandlerSearch(controlSearchResults);
+    (0, _paginationViewJsDefault.default).addHandlerClick(controlPagination);
 };
 init();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./model.js":"Y4A21","./views/recipeView.js":"l60JC","./views/searchView.js":"9OQAM","./views/resultsView.js":"cSbZE","regenerator-runtime":"dXNgZ"}],"gkKU3":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","./model.js":"Y4A21","./views/recipeView.js":"l60JC","./views/searchView.js":"9OQAM","./views/resultsView.js":"cSbZE","regenerator-runtime":"dXNgZ","./views/paginationView.js":"6z7bi"}],"gkKU3":[function(require,module,exports) {
 exports.interopDefault = function(a) {
     return a && a.__esModule ? a : {
         default: a
@@ -2302,7 +2316,7 @@ const state = {
         query: "",
         results: [],
         page: 1,
-        resultsPerPAge: (0, _configJs.RES_PER_PAGE)
+        resultsPerPage: (0, _configJs.RES_PER_PAGE)
     }
 };
 const loadRecipe = async function(id) {
@@ -2350,8 +2364,8 @@ const loadSearchResults = async function(query) {
 };
 const getSearchResultsPage = function(page = state.search.page) {
     state.search.page = page;
-    const start = (page - 1) * state.search.resultsPerPAge; // 0
-    const end = page * state.search.resultsPerPAge; // 9
+    const start = (page - 1) * state.search.resultsPerPage; // 0
+    const end = page * state.search.resultsPerPage; // 9
     // Return part of results for pagination:
     return state.search.results.slice(start, end);
 };
@@ -2758,6 +2772,67 @@ class ResultsView extends (0, _viewJsDefault.default) {
     }
 }
 exports.default = new ResultsView();
+
+},{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"6z7bi":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _viewJs = require("./View.js");
+var _viewJsDefault = parcelHelpers.interopDefault(_viewJs);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+class PaginationView extends (0, _viewJsDefault.default) {
+    _parentEl = document.querySelector(".pagination");
+    addHandlerClick(handler) {
+        // Event delegation:
+        this._parentEl.addEventListener("click", function(e) {
+            const btn = e.target.closest(".btn--inline");
+            if (!btn) return;
+            // To Establish pages navigation need to create a connection between the DOM and code -> using the data attrs
+            const goToPage = +btn.dataset.goto;
+            handler(goToPage);
+        });
+    }
+    _generateMarkupBtn(type, curPage) {
+        return `
+      <button data-goto="${type === "next" ? curPage + 1 : curPage - 1}" class="btn--inline pagination__btn--${type}">
+        ${type === "next" ? `<span>Page ${curPage + 1}</span>` : ""}
+        <svg class="search__icon">
+          <use href="${0, _iconsSvgDefault.default}#icon-arrow-${type === "next" ? "right" : "left"}"></use>
+        </svg>
+        ${type === "prev" ? `<span>Page ${curPage - 1}</span>` : ""}
+      </button>
+    `;
+    }
+    _generateMarkup() {
+        const curPage = this._data.page;
+        const numPages = Math.ceil(this._data.results.length / this._data.resultsPerPage);
+        // Page 1, and there are other pages
+        if (curPage === 1 && numPages > 1) return this._generateMarkupBtn("next", curPage);
+        // Last page
+        if (curPage === numPages && numPages > 1) return this._generateMarkupBtn("prev", curPage);
+        // Other page
+        if (curPage < numPages) return `${this._generateMarkupBtn("next", curPage)}${this._generateMarkupBtn("prev", curPage)}`;
+        // Page 1, and there are NO other pages
+        return "";
+    }
+}
+exports.default = new PaginationView(); // Another pagination solution with variables btns:
+ // const prevBtn = `
+ // <button class="btn--inline pagination__btn--prev">
+ //     <svg class="search__icon">
+ //         <use href="${icons}#icon-arrow-left"></use>
+ //         </svg>
+ //     <span>Page ${curPage - 1}</span>
+ // </button>
+ // `;
+ // const nextBtn = `
+ // <button class="btn--inline pagination__btn--next">
+ //     <span>Page ${curPage + 1}</span>
+ //     <svg class="search__icon">
+ //         <use href="${icons}#icon-arrow-right"></use>
+ //     </svg>
+ // </button>
+ // `;
 
 },{"./View.js":"5cUXS","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire3a11")
 

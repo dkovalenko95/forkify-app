@@ -2,6 +2,7 @@ import * as model from './model.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
+import paginationView from './views/paginationView.js';
 
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
@@ -49,11 +50,26 @@ const controlSearchResults = async function () {
 
     // 3) Render results:
     // console.log(model.state.search.results);
-    resultsView.render(model.getSearchResultsPage(1));
+    resultsView.render(model.getSearchResultsPage(model.state.search.page));
+
+    // 4) Render initial pagination btns
+    paginationView.render(model.state.search);
 
   } catch (err) {
     console.log(err);
   }
+};
+
+// Publisher-Subsriber pattern: addHandlerCLick() - publisher, controlPagination() - subscriber
+const controlPagination = function(goToPage) {
+  console.log(goToPage);
+
+  // 1) Render NEW results:
+  // console.log(model.state.search.results);
+  resultsView.render(model.getSearchResultsPage(goToPage));
+
+  // 2) Render NEW pagination btns
+  paginationView.render(model.state.search);
 };
 
 // Init func:
@@ -67,6 +83,7 @@ const init = function () {
   recipeView.addHandlerRender(controlRecipes); // -> subsrice controlRecipes() to addHandlerRender() -> two funcs connected -> controlRecipes() will be passed into addHandlerRender() when program starts by init() -> addHandlerRender() listens for events (addEventListener()), and use controlRecipes() as callback -> in other words, as soon as the publisher publishes an event the subscriber will get called
 
   searchView.addHandlerSearch(controlSearchResults);
+  paginationView.addHandlerClick(controlPagination);
 
 };
 init();
