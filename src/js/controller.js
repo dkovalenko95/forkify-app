@@ -72,6 +72,15 @@ const controlPagination = function(goToPage) {
   paginationView.render(model.state.search);
 };
 
+// ControlServings
+const controlServings = function (newServings) {
+  // Update the recipe servings (in state)
+  model.updateServings(newServings);
+
+  // Update the recipe view
+  recipeView.render(model.state.recipe);
+};
+
 // Init func:
 const init = function () {
   
@@ -81,10 +90,10 @@ const init = function () {
   // -> controlRecipes() - subsriber - code that wants to react(code that should be executed when event happens)
   
   recipeView.addHandlerRender(controlRecipes); // -> subsrice controlRecipes() to addHandlerRender() -> two funcs connected -> controlRecipes() will be passed into addHandlerRender() when program starts by init() -> addHandlerRender() listens for events (addEventListener()), and use controlRecipes() as callback -> in other words, as soon as the publisher publishes an event the subscriber will get called
+  recipeView.addHandlerUpdateServings(controlServings);
 
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
-
 };
 init();
 
