@@ -606,6 +606,11 @@ const controlServings = function(newServings) {
     // recipeView.render(model.state.recipe);
     (0, _recipeViewJsDefault.default).update(_modelJs.state.recipe); // -> difference between update() and render() is that update() will only update text and attrs in the DOM, so without having to re-render the entire view.
 };
+const controlAddBookmark = function() {
+    if (!_modelJs.state.recipe.bookmarked) _modelJs.addBookmark(_modelJs.state.recipe);
+    else _modelJs.deleteBookmark(_modelJs.state.recipe.id);
+    (0, _recipeViewJsDefault.default).update(_modelJs.state.recipe);
+};
 // Init func:
 const init = function() {
     // Publisher-Subsriber pattern(handle events in controller - listen events in view) - pattern algorithm: 
@@ -614,6 +619,7 @@ const init = function() {
     // -> controlRecipes() - subsriber - code that wants to react(code that should be executed when event happens)
     (0, _recipeViewJsDefault.default).addHandlerRender(controlRecipes); // -> subsrice controlRecipes() to addHandlerRender() -> two funcs connected -> controlRecipes() will be passed into addHandlerRender() when program starts by init() -> addHandlerRender() listens for events (addEventListener()), and use controlRecipes() as callback -> in other words, as soon as the publisher publishes an event the subscriber will get called
     (0, _recipeViewJsDefault.default).addHandlerUpdateServings(controlServings);
+    (0, _recipeViewJsDefault.default).addHandlerBookmark(controlAddBookmark);
     (0, _searchViewJsDefault.default).addHandlerSearch(controlSearchResults);
     (0, _paginationViewJsDefault.default).addHandlerClick(controlPagination);
 };
@@ -2319,6 +2325,8 @@ parcelHelpers.export(exports, "loadRecipe", ()=>loadRecipe);
 parcelHelpers.export(exports, "loadSearchResults", ()=>loadSearchResults);
 parcelHelpers.export(exports, "getSearchResultsPage", ()=>getSearchResultsPage);
 parcelHelpers.export(exports, "updateServings", ()=>updateServings);
+parcelHelpers.export(exports, "addBookmark", ()=>addBookmark);
+parcelHelpers.export(exports, "deleteBookmark", ()=>deleteBookmark);
 var _regeneratorRuntime = require("regenerator-runtime");
 var _configJs = require("./config.js");
 var _helpersJs = require("./helpers.js");
@@ -2329,7 +2337,8 @@ const state = {
         results: [],
         page: 1,
         resultsPerPage: (0, _configJs.RES_PER_PAGE)
-    }
+    },
+    bookmarks: []
 };
 const loadRecipe = async function(id) {
     try {
@@ -2345,7 +2354,10 @@ const loadRecipe = async function(id) {
             cookingTime: recipe.cooking_time,
             ingredients: recipe.ingredients
         };
-    // console.log(state.recipe);
+        // Check bookmarked
+        if (state.bookmarks.some((bookmark)=>bookmark.id === id)) state.recipe.bookmarked = true;
+        else state.recipe.bookmarked = false;
+        console.log(state.recipe);
     } catch (err) {
         // Temp err handling:
         console.error(`${err} ⛔⛔⛔`);
@@ -2366,7 +2378,8 @@ const loadSearchResults = async function(query) {
                 image: rec.image_url
             };
         });
-    // console.log(state.search.results);
+        // Reset pagination after new query
+        state.search.page = 1;
     } catch (err) {
         // Temp err handling:
         console.error(`${err} ⛔⛔⛔`);
@@ -2388,6 +2401,21 @@ const updateServings = function(newServings) {
     });
     // Update servings in the state
     state.recipe.servings = newServings;
+};
+const addBookmark = function(recipe) {
+    // Add bookmark
+    state.bookmarks.push(recipe);
+    // Mark current recipe as bookmarked
+    if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+    console.log(recipe);
+};
+const deleteBookmark = function(id) {
+    // Find actual recipe/delete bookmark
+    const index = state.bookmarks.findIndex((el)=>el.id === id);
+    state.bookmarks.splice(index, 1);
+    // Mark current recipe as not bookmarked
+    if (id === state.recipe.id) state.recipe.bookmarked = false;
+    console.log(state.recipe);
 };
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","regenerator-runtime":"dXNgZ","./config.js":"k5Hzs","./helpers.js":"hGI1E"}],"k5Hzs":[function(require,module,exports) {
@@ -2463,6 +2491,13 @@ class RecipeView extends (0, _viewJsDefault.default) {
             if (+updateTo > 0) handler(+updateTo);
         });
     }
+    addHandlerBookmark(handler) {
+        this._parentEl.addEventListener("click", function(e) {
+            const btn = e.target.closest(".btn--bookmark");
+            if (!btn) return;
+            handler();
+        });
+    }
     _generateMarkup() {
         return `
       <figure class="recipe__fig">
@@ -2502,9 +2537,9 @@ class RecipeView extends (0, _viewJsDefault.default) {
         </div>
 
         <div class="recipe__user-generated"></div>
-        <button class="btn--round">
+        <button class="btn--round btn--bookmark">
           <svg class="">
-            <use href="${0, _iconsSvgDefault.default}#icon-bookmark-fill"></use>
+            <use href="${0, _iconsSvgDefault.default}#icon-bookmark${this._data.bookmarked ? "-fill" : ""}"></use>
           </svg>
         </button>
       </div>
@@ -2720,11 +2755,9 @@ class View {
             // console.log('🌐 node value:', typeof newEl.firstChild.nodeValue);
             curEl.textContent = newEl.textContent;
             // Update changed attts -> replace all attrs in cur el by attrs coming from new el
-            if (!newEl.isEqualNode(curEl)) {
-                console.log(newEl.attributes);
-                console.log(Array.from(newEl.attributes));
-                Array.from(newEl.attributes).forEach((attr)=>curEl.setAttribute(attr.name, attr.value));
-            }
+            if (!newEl.isEqualNode(curEl)) // console.log(newEl.attributes);
+            // console.log(Array.from(newEl.attributes));
+            Array.from(newEl.attributes).forEach((attr)=>curEl.setAttribute(attr.name, attr.value));
         });
     }
     _clear() {

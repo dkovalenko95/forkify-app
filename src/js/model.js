@@ -12,6 +12,7 @@ export const state = {
     resultsPerPage: RES_PER_PAGE,
     
   },
+  bookmarks: [],
 };
 
 // Main business logic + HTTP library + State: loadRecipe() make AJAX request -> loads recipe -> change 'state' obj with the main data
@@ -30,7 +31,12 @@ export const loadRecipe = async function (id) {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients
     };
-    // console.log(state.recipe);
+    // Check bookmarked
+    if (state.bookmarks.some(bookmark => bookmark.id === id)) state.recipe.bookmarked = true;
+    else state.recipe.bookmarked = false;
+
+    console.log(state.recipe);
+
   } catch (err) {
     // Temp err handling:
     console.error(`${err} ⛔⛔⛔`);
@@ -56,7 +62,8 @@ export const loadSearchResults = async function (query) {
       };
     });
 
-    // console.log(state.search.results);
+    // Reset pagination after new query
+    state.search.page = 1;
 
   } catch (err) {
     // Temp err handling:
@@ -84,4 +91,24 @@ export const updateServings = function (newServings) {
 
   // Update servings in the state
   state.recipe.servings = newServings;
+};
+
+// Bookmarks
+export const addBookmark = function (recipe) {
+  // Add bookmark
+  state.bookmarks.push(recipe);
+
+  // Mark current recipe as bookmarked
+  if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+  console.log(recipe);
+};
+
+export const deleteBookmark = function (id) {
+  // Find actual recipe/delete bookmark
+  const index = state.bookmarks.findIndex(el => el.id === id);
+  state.bookmarks.splice(index, 1);
+
+  // Mark current recipe as not bookmarked
+  if (id === state.recipe.id) state.recipe.bookmarked = false;
+  console.log(state.recipe);
 };

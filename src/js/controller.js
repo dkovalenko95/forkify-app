@@ -63,7 +63,7 @@ const controlSearchResults = async function () {
 };
 
 // Publisher-Subsriber pattern: addHandlerCLick() - publisher, controlPagination() - subscriber
-const controlPagination = function(goToPage) {
+const controlPagination = function (goToPage) {
   console.log(goToPage);
 
   // 1) Render NEW results:
@@ -84,6 +84,13 @@ const controlServings = function (newServings) {
   recipeView.update(model.state.recipe); // -> difference between update() and render() is that update() will only update text and attrs in the DOM, so without having to re-render the entire view.
 };
 
+const controlAddBookmark = function () {
+  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
+  else model.deleteBookmark(model.state.recipe.id);
+
+  recipeView.update(model.state.recipe);
+}
+
 // Init func:
 const init = function () {
   
@@ -94,7 +101,7 @@ const init = function () {
   
   recipeView.addHandlerRender(controlRecipes); // -> subsrice controlRecipes() to addHandlerRender() -> two funcs connected -> controlRecipes() will be passed into addHandlerRender() when program starts by init() -> addHandlerRender() listens for events (addEventListener()), and use controlRecipes() as callback -> in other words, as soon as the publisher publishes an event the subscriber will get called
   recipeView.addHandlerUpdateServings(controlServings);
-
+  recipeView.addHandlerBookmark(controlAddBookmark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
 };
