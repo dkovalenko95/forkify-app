@@ -78,7 +78,8 @@ const controlServings = function (newServings) {
   model.updateServings(newServings);
 
   // Update the recipe view
-  recipeView.render(model.state.recipe);
+  // recipeView.render(model.state.recipe);
+  recipeView.update(model.state.recipe); // -> difference between update() and render() is that update() will only update text and attrs in the DOM, so without having to re-render the entire view.
 };
 
 // Init func:
