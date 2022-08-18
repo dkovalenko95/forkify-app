@@ -558,6 +558,8 @@ const controlRecipes = async function() {
         // console.log(idRecipe);
         if (!idRecipe) return;
         (0, _recipeViewJsDefault.default).renderSpinner();
+        // 1a) Update results view to mark selected search result
+        (0, _resultsViewJsDefault.default).update(_modelJs.getSearchResultsPage());
         // 2) Loading recipe(async func from model.js -> return promise) -> one async func calling another async func:
         await _modelJs.loadRecipe(idRecipe);
         // 3) Rendering recipe:
@@ -2700,11 +2702,9 @@ class View {
     }
     // DOM update (not ideal algorithm for big real world apps, but works here and suits for not very complicated apps like this)
     update(data) {
-        // Wrong query err:
-        if (!data || Array.isArray(data) && data.length === 0) return this.renderError();
         this._data = data;
         const newMarkup = this._generateMarkup();
-        // Convert newMarkup str to a DOM obj that's living in the memory and that we can then use to compare with the actual DOM that's on the page. -> 
+        // Convert newMarkup str to a virtual DOM obj that's living in the memory and that we can then use to compare with the actual DOM that's on the page. -> 
         // Generate new 'virtual DOM' with changes
         const newDOM = document.createRange().createContextualFragment(newMarkup);
         const newElements = Array.from(newDOM.querySelectorAll("*"));
@@ -2807,13 +2807,13 @@ class ResultsView extends (0, _viewJsDefault.default) {
     _errorMessage = "No recipes found for your query! Try again :)";
     _message = "";
     _generateMarkup() {
-        console.log(this._data);
         return this._data.map(this._generateMarkupPreview).join("");
     }
     _generateMarkupPreview(result) {
+        const id = window.location.hash.slice(1);
         return `
       <li class="preview">
-        <a class="preview__link" href="#${result.id}">
+        <a class="preview__link ${result.id === id ? "preview__link--active" : ""}" href="#${result.id}">
           <figure class="preview__fig">
             <img src="${result.image}" alt="${result.title}" />
           </figure>

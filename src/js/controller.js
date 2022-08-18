@@ -15,12 +15,14 @@ import { async } from 'regenerator-runtime';
 // App logic(ROUTER): Handles UI events and dispatches tasks to 'model' and 'view'
 const controlRecipes = async function () {
   try {
-
     // 1) Get recipe id:
     const idRecipe = window.location.hash.slice(1);
     // console.log(idRecipe);
     if (!idRecipe) return;
     recipeView.renderSpinner();
+
+    // 1a) Update results view to mark selected search result
+    resultsView.update(model.getSearchResultsPage())
 
     // 2) Loading recipe(async func from model.js -> return promise) -> one async func calling another async func:
     await model.loadRecipe(idRecipe);

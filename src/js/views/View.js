@@ -15,13 +15,10 @@ export default class View {
 
   // DOM update (not ideal algorithm for big real world apps, but works here and suits for not very complicated apps like this)
   update(data) {
-    // Wrong query err:
-    if (!data || (Array.isArray(data) && data.length === 0)) return this.renderError(); 
-
     this._data = data;
     const newMarkup = this._generateMarkup();
 
-    // Convert newMarkup str to a DOM obj that's living in the memory and that we can then use to compare with the actual DOM that's on the page. -> 
+    // Convert newMarkup str to a virtual DOM obj that's living in the memory and that we can then use to compare with the actual DOM that's on the page. -> 
     // Generate new 'virtual DOM' with changes
     const newDOM = document.createRange().createContextualFragment(newMarkup);
     const newElements = Array.from(newDOM.querySelectorAll('*'));
