@@ -24,17 +24,20 @@ const controlRecipes = async function () {
 
     // 1a) Update results view to mark selected search result
     resultsView.update(model.getSearchResultsPage());
+    // 1b) Updating bookmark view
     bookmarksView.update(model.state.bookmarks);
-
+    
     // 2) Loading recipe(async func from model.js -> return promise) -> one async func calling another async func:
     await model.loadRecipe(idRecipe);
     
     // 3) Rendering recipe:
     recipeView.render(model.state.recipe);
 
+
   } catch (err) {
     // Handling error:
     recipeView.renderError();
+    console.error(err);
   }
 };
 
@@ -96,10 +99,16 @@ const controlAddBookmark = function () {
 
   // 3) Render bookmarks
   bookmarksView.render(model.state.bookmarks);
-}
+};
+
+controlBookmarksRender = function () {
+  bookmarksView.render(model.state.bookmarks);
+};
 
 // Init func:
 const init = function () {
+
+  bookmarksView.addHandlerRender(controlBookmarksRender);
   
   // Publisher-Subsriber pattern(handle events in controller - listen events in view) - pattern algorithm: 
   // -> subscribe to the publisher by passing in the subscriber func as arg -> 
