@@ -1,6 +1,6 @@
 import { async } from "regenerator-runtime";
-import { API_URL, RES_PER_PAGE } from "./config.js";
-import { getJSON } from "./helpers.js";
+import { API_URL, RES_PER_PAGE, KEY } from "./config.js";
+import { getJSON, sendJSON } from "./helpers.js";
 
 // Main data obj with main recipe data:
 export const state = {
@@ -15,22 +15,30 @@ export const state = {
   bookmarks: [],
 };
 
+const createRecipeObject = function (data) {
+  const { recipe } = data.data;
+  return {
+    id: recipe.id,
+    title: recipe.title,
+    publisher: recipe.publisher,
+    sourceUrl: recipe.source_url,
+    image: recipe.image_url,
+    servings: recipe.servings,
+    cookingTime: recipe.cooking_time,
+    ingredients: recipe.ingredients,
+
+    // Explanation what is happening here. So remember that the end operator short-circuits. So if recipe.key is a faulty value, so if it doesn't exist well, then nothing happens here, right. And so then destructuring here, well does basically nothing. Now, if this actually is some value, then the second part of the operator is executed and returned. And so in that case, it is this object here basically that is going to be returned. And so then this whole expression will become that object. And so then we can spread that object to basically put the values here. And so that will then be the same as if the values would be out here like this: 'key: recipe.key'. But again, only in case that the key actually does exist. And so this is a very nice trick to conditionally add properties to an object.
+    ...(recipe.key && { key: recipe.key })
+  };
+};
+
 // Main business logic + HTTP library + State: loadRecipe() make AJAX request -> loads recipe -> change 'state' obj with the main data
 export const loadRecipe = async function (id) {
   try {
     const data = await getJSON(`${API_URL}${id}`);
+
+    state.recipe = createRecipeObject(data);
   
-    const { recipe } = data.data;
-    state.recipe = {
-      id: recipe.id,
-      title: recipe.title,
-      publisher: recipe.publisher,
-      sourceUrl: recipe.source_url,
-      image: recipe.image_url,
-      servings: recipe.servings,
-      cookingTime: recipe.cooking_time,
-      ingredients: recipe.ingredients
-    };
     // Check bookmarked
     if (state.bookmarks.some(bookmark => bookmark.id === id)) state.recipe.bookmarked = true;
     else state.recipe.bookmarked = false;
@@ -164,7 +172,16 @@ export const uploadRecipe = async function (newRecipe) {
 
     console.log(ingredients);
     console.log(recipe);
-    
+
+    // AJAX post request
+    // '?' to specify a list of parameters
+    const data = await sendJSON(`${API_URL}?key=${KEY}`, recipe);
+    console.log(data);
+
+    state.recipe = createRecipeObject(data);
+
+    addBookmark(state.recipe);
+
   } catch(err) {
     throw err;
   }

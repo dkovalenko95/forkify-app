@@ -30,3 +30,34 @@ export const getJSON = async function (url) {
     // console.log(err);
   }
 };
+
+
+// Send json:
+export const sendJSON = async function (url, uploadData) {
+  try {
+    // Race to handle the delay:
+    const res = await Promise.race([
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(uploadData),
+      }), 
+      timeout(TIMEOUT_SEC)
+    ]);
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    
+    return data; // -> 'data' resolve value of the promise from getJSON()
+
+  } catch (err) {
+    // Temp err handling -> 
+    // Re-throw err, so it apppear in model.js ->
+    // So we propagated err down(to loadRecipe() in model.js) from one async func to the other by re-throwing err here in this 'catch' block:
+    throw err;
+    // console.log(err);
+  }
+};
