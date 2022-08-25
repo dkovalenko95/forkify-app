@@ -120,8 +120,12 @@ const controlAddRecipe = async function (newRecipe) {
     // Render recipe
     recipeView.render(model.state.recipe);
 
+    // Render bookmark view
+    bookmarksView.render(model.state.bookmarks);
+
     // Success message
     addRecipeView.renderMessage();
+
 
     // Close form window
     setTimeout(function () {
@@ -158,3 +162,9 @@ init();
 // (function init () {
 //   recipeView.addHandlerRender(controlRecipes);
 // })();
+
+
+// BUG:
+// 1. Add recipe form works just once. Need to reload the page to POST new recipe
+// 2. Seccess message reappears if close it before setTimeout() after posting new recipe
+// 3. Had to render the bookmarks view after rendering the recipe view to get it displayed as soon as we upload the data

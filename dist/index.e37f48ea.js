@@ -537,6 +537,10 @@ var _webImmediateJs = require("core-js/modules/web.immediate.js"); // IIFE init 
  // (function init () {
  //   recipeView.addHandlerRender(controlRecipes);
  // })();
+ // BUG:
+ // 1. Add recipe form works just once. Need to reload the page to POST new recipe
+ // 2. Seccess message reappears if close it before setTimeout() after posting new recipe
+ // 3. Had to render the bookmarks view after rendering the recipe view to get it displayed as soon as we upload the data
 var _modelJs = require("./model.js");
 var _configJs = require("./config.js");
 var _recipeViewJs = require("./views/recipeView.js");
@@ -636,6 +640,8 @@ const controlAddRecipe = async function(newRecipe) {
         console.log(_modelJs.state.recipe);
         // Render recipe
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
+        // Render bookmark view
+        (0, _bookmarksViewJsDefault.default).render(_modelJs.state.bookmarks);
         // Success message
         (0, _addRecipeViewJsDefault.default).renderMessage();
         // Close form window
