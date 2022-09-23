@@ -10,7 +10,38 @@ const timeout = function (s) {
   });
 };
 
-// Get json:
+// AJAX
+export const AJAX = async function(url, uploadData = undefined) {
+  try {
+    // fetchPro GET or SEND
+    const fetchPro = uploadData ? fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(uploadData),
+    }) : fetch(url);
+
+    // Race to handle the delay:
+    const res = await Promise.race([fetchPro, timeout(TIMEOUT_SEC)]);
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    
+    return data; // -> 'data' resolve value of the promise from getJSON()
+
+  } catch (err) {
+    // Temp err handling -> 
+    // Re-throw err, so it apppear in model.js ->
+    // So we propagated err down(to loadRecipe() in model.js) from one async func to the other by re-throwing err here in this 'catch' block:
+    throw err;
+    // console.log(err);
+  }
+};
+
+
+/* // Get json:
 export const getJSON = async function (url) {
   try {
     // Race to handle the delay:
@@ -30,7 +61,6 @@ export const getJSON = async function (url) {
     // console.log(err);
   }
 };
-
 
 // Send json:
 export const sendJSON = async function (url, uploadData) {
@@ -60,4 +90,4 @@ export const sendJSON = async function (url, uploadData) {
     throw err;
     // console.log(err);
   }
-};
+}; */
