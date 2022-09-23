@@ -541,6 +541,8 @@ var _webImmediateJs = require("core-js/modules/web.immediate.js"); // IIFE init 
  // 1. Add recipe form works just once. Need to reload the page to POST new recipe
  // 2. Seccess message reappears if close it before setTimeout() after posting new recipe
  // 3. Had to render the bookmarks view after rendering the recipe view to get it displayed as soon as we upload the data
+ // TODO - create different fields in form for ingridients(quantity, unit, description)
+ // TODO - add new button in form for adding new ingridient
 var _modelJs = require("./model.js");
 var _configJs = require("./config.js");
 var _recipeViewJs = require("./views/recipeView.js");
@@ -640,11 +642,13 @@ const controlAddRecipe = async function(newRecipe) {
         console.log(_modelJs.state.recipe);
         // Render recipe
         (0, _recipeViewJsDefault.default).render(_modelJs.state.recipe);
-        // Render bookmark view
-        (0, _bookmarksViewJsDefault.default).render(_modelJs.state.bookmarks);
         // Success message
         (0, _addRecipeViewJsDefault.default).renderMessage();
-        // Close form window
+        // Render bookmark view
+        (0, _bookmarksViewJsDefault.default).render(_modelJs.state.bookmarks);
+        // Change ID in URL (history API)
+        window.history.pushState(null, "", `#${_modelJs.state.recipe.id}`);
+        // Close form window BUG with closing window
         setTimeout(function() {
             (0, _addRecipeViewJsDefault.default).toggleModal();
         }, (0, _configJs.MODAL_CLOSE_SEC) * 1000);
@@ -2481,7 +2485,7 @@ const initLocalStorage = function() {
 };
 initLocalStorage();
 // console.log(state.bookmarks);
-// Func for debagging during developmen
+// NOTE - Func for debagging during developmen
 const clearBookmarks = function() {
     localStorage.clear("bookmarks");
 };
@@ -3141,7 +3145,7 @@ class AddRecipeView extends (0, _viewJsDefault.default) {
                 ...new FormData(this)
             ];
             console.log(dataArr);
-            // Convert entries to an object
+            // Convert entries to an obj
             const data = Object.fromEntries(dataArr);
             console.log(data);
             handler(data);

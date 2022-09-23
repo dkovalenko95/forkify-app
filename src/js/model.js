@@ -140,11 +140,13 @@ initLocalStorage();
 
 
 
-// Func for debagging during developmen
+// NOTE - Func for debagging during developmen
 const clearBookmarks = function () {
   localStorage.clear('bookmarks');
 };
 // clearBookmarks();
+
+
 
 export const uploadRecipe = async function (newRecipe) {
   try {

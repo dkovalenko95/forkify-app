@@ -3,7 +3,7 @@ import icons from 'url:../../img/icons.svg';
 
 class AddRecipeView extends View {
   _parentEl = document.querySelector('.upload');
-  _message =  'Recipe was successfully uploaded :)'
+  _message = 'Recipe was successfully uploaded :)'
 
   _window = document.querySelector('.add-recipe-window');
   _overlay = document.querySelector('.overlay');
@@ -44,18 +44,15 @@ class AddRecipeView extends View {
       const dataArr = [...new FormData(this)];
       console.log(dataArr);
 
-      // Convert entries to an object
+      // Convert entries to an obj
       const data = Object.fromEntries(dataArr);
       console.log(data);
       
       handler(data);
-
     });
   }
 
-  _generateMarkup() {
-    
-  }
+  _generateMarkup() {}
 };
 
 export default new AddRecipeView();

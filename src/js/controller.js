@@ -120,14 +120,16 @@ const controlAddRecipe = async function (newRecipe) {
     // Render recipe
     recipeView.render(model.state.recipe);
 
-    // Render bookmark view
-    bookmarksView.render(model.state.bookmarks);
-
     // Success message
     addRecipeView.renderMessage();
 
+    // Render bookmark view
+    bookmarksView.render(model.state.bookmarks);
 
-    // Close form window
+    // Change ID in URL (history API)
+    window.history.pushState(null, '', `#${model.state.recipe.id}`);
+
+    // Close form window BUG with closing window
     setTimeout(function () {
       addRecipeView.toggleModal()
     }, MODAL_CLOSE_SEC * 1000);
@@ -164,7 +166,11 @@ init();
 // })();
 
 
+
 // BUG:
 // 1. Add recipe form works just once. Need to reload the page to POST new recipe
 // 2. Seccess message reappears if close it before setTimeout() after posting new recipe
 // 3. Had to render the bookmarks view after rendering the recipe view to get it displayed as soon as we upload the data
+
+// TODO - create different fields in form for ingridients(quantity, unit, description)
+// TODO - add new button in form for adding new ingridient
